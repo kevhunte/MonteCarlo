@@ -6,9 +6,10 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-      <p>
+      <p style={{fontSize: 'calc(20px + 2vmin)'}}>
         Monte Carlo Simulator
       </p>
+      ---Put Graph Component here---
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
