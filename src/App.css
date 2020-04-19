@@ -1,6 +1,7 @@
 .App {
   text-align: center;
   background-color: #282c34;
+  color: white;
 }
 
 .App-logo {
@@ -21,11 +22,26 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
   color: #61dafb;
+}
+
+.walked {
+  background-color: #4FD3CB;
+  font-size: 1rem;
+  text-align: center;
+}
+
+#GraphContainer{
+  margin: 0 6rem 0 6rem;
+}
+
+.rowContainer{
+ display: grid;
+ align-items: start;
+ grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
 @keyframes App-logo-spin {
