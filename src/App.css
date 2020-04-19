@@ -28,10 +28,20 @@
   color: #61dafb;
 }
 
-.walked {
-  background-color: #4FD3CB;
+.cell{
+  max-width: 1rem;
   font-size: 1rem;
   text-align: center;
+}
+
+.walked {
+  background-color: #4FD3CB;
+  color: #4FD3CB;
+  border-radius: 50%;
+}
+
+.notWalked{
+  color: #282c34;
 }
 
 #GraphContainer{
@@ -40,7 +50,6 @@
 
 .rowContainer{
  display: grid;
- align-items: start;
  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
