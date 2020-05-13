@@ -2,15 +2,18 @@ import React, {useState, useCallback, useRef} from 'react';
 //import logo from './logo.svg';
 import './App.css';
 
-const dims = 41;
+const dims = 25;
 const GRIDDIMENSION = '15px';
 const start = Math.floor(dims / 2); // middle coord
-let currStep = [start,start];
-let steps = 0;
-let interval = 100;
+let currStep;//let currStep = [start,start];
+let steps;//let steps = 0;
+let interval;//let interval = 100;
 const BLUETHEME = '#4FD3CB';
 
 const initGrid = () => {
+  currStep = [start,start];
+  steps = 0;
+  interval = 100;
    const rows = [];
    for(let i = 0; i < dims; i++){
     rows.push(Array.from(Array(dims), () => 0))
@@ -64,6 +67,22 @@ const App = () => {
           runSim();
         }}
         >{isRunning ? 'Pause Simulation' : 'Start Simulation'}
+      </button>
+      <br/>
+      <button
+        style={{
+          padding:'1rem',
+          fontWeight:'bold',
+          color:'white',
+          borderRadius: '25px',
+          backgroundColor:'red',
+          opacity: isRunning ? '0' : '1'
+        }}
+        onClick={() => {
+          setMatrix(initGrid);
+          console.log('reset everything here');
+        }}
+        >Reset Simulation
       </button>
     </div>
     </div>
