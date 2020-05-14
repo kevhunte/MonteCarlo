@@ -1,19 +1,20 @@
-import React, {useState, useCallback, useRef} from 'react';
+import React, {useState, useRef} from 'react';
 //import logo from './logo.svg';
 import './App.css';
 
+let currStep;//let currStep = [start,start];
+let steps;//let steps = 0;
+let interval = 100;
 const dims = 25;
 const GRIDDIMENSION = '15px';
 const start = Math.floor(dims / 2); // middle coord
-let currStep;//let currStep = [start,start];
-let steps;//let steps = 0;
-let interval;//let interval = 100;
 const BLUETHEME = '#4FD3CB';
+let maxSteps = 0;
+// ------
 
 const initGrid = () => {
   currStep = [start,start];
   steps = 0;
-  interval = 100;
    const rows = [];
    for(let i = 0; i < dims; i++){
     rows.push(Array.from(Array(dims), () => 0))
@@ -22,23 +23,25 @@ const initGrid = () => {
 };
 
 const App = () => {
-  //let timer = null;
+
   const [matrix, setMatrix] = useState(initGrid);
 
   const [isRunning, setRunning] = useState(false);
+
+  const [pageController, setpageController] = useState(0);
   matrix[start][start] = 1; // Start at the middle
 
   const runningRef = useRef();
   runningRef.current = isRunning;
 
-  const runSim = useCallback(() => {
+  const runSim = () => {
     if(!runningRef.current){
       return;
     }
     Walk(matrix, setMatrix, setRunning);
 
     setTimeout(runSim, interval);
-  });
+  };
 
   return (
     <div className="App">
@@ -46,44 +49,65 @@ const App = () => {
       Monte Carlo Simulator
     </p>
 
-    <div id="GraphContainer">
+    <button
+    style={{
+      padding:'0.5rem',
+      margin: '0 0 1rem 0',
+      fontWeight:'bold',
+      color:'white',
+      borderRadius: '25px',
+      backgroundColor:'green'
+    }}
+    onClick={() =>{
+      pageController === 0 ? setpageController(1) : setpageController(0);
+      //console.log('pageController: ',pageController);
+    }}
+    > {pageController === 0 ? 'See all runs =>' : '<= Simulator'} </button>
+
+    <div id="GraphContainer" style={{display: pageController === 0 ? undefined : 'none'}} className="animated fadeIn">
       <RenderGrid matrix={matrix}/>
+      <div style={{ padding:'0 0 2rem 0'}}>
+        <div style={{padding: '1rem 0', display: steps || maxSteps ? undefined : 'none'}}>
+        {steps > 0 ? 'Steps travelled: '+steps : ''} <br/>
+        {maxSteps ? 'Best run: '+maxSteps : '' } <br/>
+        </div>
+        <button
+          style={{
+            padding:'1rem',
+            fontWeight:'bold',
+            color:'white',
+            borderRadius: '25px',
+            backgroundColor:BLUETHEME
+          }}
+          onClick={() => {
+            setRunning(!isRunning);
+            runningRef.current = true;
+            runSim();
+          }}
+          >{isRunning ? 'Pause Simulation' : 'Start Simulation'}
+        </button>
+        <br/>
+        <button
+          style={{
+            padding:'1rem',
+            fontWeight:'bold',
+            color:'white',
+            borderRadius: '25px',
+            backgroundColor:'red',
+            display: !isRunning ? 'inline-block' : 'none'
+          }}
+          onClick={() => {
+            setMatrix(initGrid);
+            //console.log('reset everything here');
+          }}
+          >Reset Simulation
+        </button>
+      </div>
     </div>
-    <div style={{
-      padding:'0 0 2rem 0'
-    }}>
-    {steps > 0 ? 'Steps travelled: '+steps : ''} <br/>
-      <button
-        style={{
-          padding:'1rem',
-          fontWeight:'bold',
-          color:'white',
-          borderRadius: '25px',
-          backgroundColor:BLUETHEME
-        }}
-        onClick={() => {
-          setRunning(!isRunning);
-          runningRef.current = true;
-          runSim();
-        }}
-        >{isRunning ? 'Pause Simulation' : 'Start Simulation'}
-      </button>
-      <br/>
-      <button
-        style={{
-          padding:'1rem',
-          fontWeight:'bold',
-          color:'white',
-          borderRadius: '25px',
-          backgroundColor:'red',
-          opacity: isRunning ? '0' : '1'
-        }}
-        onClick={() => {
-          setMatrix(initGrid);
-          console.log('reset everything here');
-        }}
-        >Reset Simulation
-      </button>
+
+    <div id="ChartContainer" style={{display: pageController !== 0 ? undefined : 'none'}} className="animated fadeIn">
+      {'--Chart.js container here--'}<br/>
+      {'---Graph.js container that shows all runs---'}
     </div>
     </div>
   );
@@ -110,7 +134,8 @@ function Walk(matrix, setMatrix, setRunning){
   let stepTaken = possibleSteps.splice(pick, 1)[0]; // randomly pick
 
   if(!stepTaken){ // nowhere to walk, should stop sim
-    console.log('MonteCarlo stopped');
+    //console.log('MonteCarlo stopped');
+    if(steps > maxSteps) maxSteps = steps;
     setRunning(false);
   }
   else{
@@ -120,9 +145,9 @@ function Walk(matrix, setMatrix, setRunning){
 
     // copies array and updates state
     let newMatrix = [];
-    matrix.map(rows => {
+    matrix.forEach(rows => {
       let row =[];
-      rows.map(cols => {
+      rows.forEach(cols => {
         row.push(cols);
       })
       newMatrix.push(row);
