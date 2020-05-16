@@ -1,5 +1,5 @@
 import React, {useState, useRef} from 'react';
-//import logo from './logo.svg';
+import {Line} from 'react-chartjs-2';
 import './App.css';
 
 let currStep;//let currStep = [start,start];
@@ -42,6 +42,22 @@ const App = () => {
 
     setTimeout(runSim, interval);
   };
+
+  const state = {
+  labels: ['January', 'February', 'March',
+           'April', 'May'],
+  datasets: [
+    {
+      label: 'Rainfall',
+      fill: false,
+      lineTension: 0.5,
+      backgroundColor: 'rgba(75,192,192,1)',
+      borderColor: 'rgba(0,0,0,1)',
+      borderWidth: 2,
+      data: [65, 59, 80, 81, 56]
+    }
+  ]
+}
 
   return (
     <div className="App">
@@ -106,8 +122,20 @@ const App = () => {
     </div>
 
     <div id="ChartContainer" style={{display: pageController !== 0 ? undefined : 'none'}} className="animated fadeIn">
-      {'--Chart.js container here--'}<br/>
-      {'---Graph.js container that shows all runs---'}
+      <Line
+          data={state}
+          options={{
+            title:{
+              display:true,
+              text:'MonteCarlo Runs Over Time',
+              fontSize:20
+            },
+            legend:{
+              display:true,
+              position:'right'
+            }
+          }}
+        />
     </div>
     </div>
   );
