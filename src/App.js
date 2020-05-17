@@ -37,12 +37,17 @@ const App = () => {
 
   const [prevRuns, setprevRuns] = useState([{'runs':runs,'steps':steps}]);
 
+  const [stats, setStats] = useState({
+    'max': maxSteps,
+    'average': 0
+  });
+
   matrix[start][start] = 1; // Start at the middle
 
   const runningRef = useRef();
   runningRef.current = isRunning;
 
-  const Walk = () => {
+  const walk = () => {
     //console.log('walking');
     let possibleSteps = [];
     if(currStep[0] + 1 < dims && !matrix[currStep[0]+1][currStep[1]]){ // can go down
@@ -96,14 +101,26 @@ const App = () => {
     }
   }
 
-
   const runSim = () => {
     if(!runningRef.current){
       return;
     }
-    Walk();
+    walk();
 
     setTimeout(runSim, interval);
+  };
+
+  const calculateStats = () => {
+    let sum = 0;
+    prevRuns.forEach(item => {
+      sum += item.steps;
+    });
+    //console.log('sum:', sum);
+    setStats({
+      'max': maxSteps,
+      'average': prevRuns.length > 1 ? (sum/(prevRuns.length - 1)).toPrecision(2) : 0.0
+    });
+
   };
 
   const graph = () => {
@@ -115,7 +132,7 @@ const App = () => {
           fill: false,
           lineTension: 0.5,
           backgroundColor: BLUETHEME,
-          borderColor: 'rgba(0,0,0,1)',
+          borderColor: 'rgb(2, 0, 36)',
           borderWidth: 2,
           data: prevRuns.map((x) => x.steps) //[65, 59, 80, 81, 56] // prevRuns.steps
         }
@@ -124,8 +141,10 @@ const App = () => {
   };
 
 useEffect(() => {
-  graph();
-},[prevRuns]); // renders when prevRuns is updated
+  calculateStats(); // runs stats on data
+  graph(); // renders
+  // eslint-disable-next-line
+},[prevRuns]); // runs when prevRuns is updated
 
   return (
     <div className="App">
@@ -146,7 +165,7 @@ useEffect(() => {
       pageController === 0 ? setpageController(1) : setpageController(0);
       //console.log('pageController: ',pageController);
     }}
-    > {pageController === 0 ? 'See all runs =>' : '<= Simulator'} </button>
+    > {pageController === 0 ? 'Run statistics =>' : '<= Back to simulator'} </button>
 
       <div id="GraphContainer" style={{display: pageController === 0 ? undefined : 'none'}} className="animated fadeIn">
         <RenderGrid matrix={matrix}/>
@@ -189,7 +208,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div id="ChartContainer" style={{display: pageController !== 0 ? undefined : 'none'}} className="animated fadeIn">
+      <div id="ChartContainer" style={{display: pageController !== 0 ? undefined : 'none', padding:'0 0.5rem'}} className="animated fadeIn">
         <Line
             data={graphData}
             options={{
@@ -197,23 +216,16 @@ useEffect(() => {
                 display:true,
                 text:'Runs Over Time',
                 fontSize:20,
-                borderColor: 'rgba(0,0,0,1)'
+                fontColor: 'white'
               },
               scales:{
                 yAxes:[
                   {
                   gridLines:{
-                    display: false
+                    display: true
                   }
                 }
-                ],
-                xAxes:[
-                  {
-                  gridLines:{
-                    display: false
-                  }
-                }
-                ]
+              ]
               },
               legend:{
                 display:true,
@@ -221,58 +233,21 @@ useEffect(() => {
               }
             }}
           />
+          <div id="statsContainer" style={{padding: '2rem 0'}}>
+            <h2>
+            Empirical Statistics
+            </h2>
+            <p>
+            Max steps taken: {stats.max}
+            </p>
+            <p>
+            Average steps taken per run: {stats.average}
+            </p>
+          </div>
       </div>
     </div>
   );
 }
-
-/*function Walk(matrix, setMatrix, setRunning){
-  //console.log('walking');
-  let possibleSteps = [];
-  if(currStep[0] + 1 < dims && !matrix[currStep[0]+1][currStep[1]]){ // can go down
-    possibleSteps.push([currStep[0]+1,currStep[1]]);
-  }
-  if(currStep[0] - 1 >= 0 && !matrix[currStep[0]-1][currStep[1]]){ // can go up
-    possibleSteps.push([currStep[0]-1,currStep[1]]);
-  }
-  if(currStep[1] + 1 < dims && !matrix[currStep[0]][currStep[1]+1]){ // can go right
-    possibleSteps.push([currStep[0],currStep[1]+1]);
-  }
-  if(currStep[1] - 1 >= 0 && !matrix[currStep[0]][currStep[1]-1]){ // can go left
-    possibleSteps.push([currStep[0],currStep[1]-1]);
-  }
-
-  let pick = Math.floor(Math.random() * possibleSteps.length);
-  //console.log(possibleSteps, pick);
-  let stepTaken = possibleSteps.splice(pick, 1)[0]; // randomly pick
-
-  if(!stepTaken){ // nowhere to walk, should stop sim
-    //console.log('MonteCarlo stopped');
-    if(steps > maxSteps) maxSteps = steps;
-    prevRuns.push({'steps':steps,'runs':runs});
-    runs += 1;
-    setRunning(false);
-  }
-  else{
-    //console.log('step:',stepTaken[0],stepTaken[1]);
-
-    matrix[stepTaken[0]][stepTaken[1]] = 1; // walk
-
-    // copies array and updates state
-    let newMatrix = [];
-    matrix.forEach(rows => {
-      let row =[];
-      rows.forEach(cols => {
-        row.push(cols);
-      })
-      newMatrix.push(row);
-    });
-    setMatrix(newMatrix);
-
-    currStep = stepTaken; // update step
-    steps += 1;
-  }
-}*/
 
 function RenderGrid(props){
   const matrix = props.matrix;
